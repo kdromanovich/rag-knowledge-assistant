@@ -1,6 +1,8 @@
 # RAG Knowledge Assistant
 
-Полноценный backend-проект RAG на **Python, FastAPI, PostgreSQL, pgvector, Redis и OpenAI**. Сервис принимает документы, разбивает их на фрагменты, строит embeddings, выполняет векторный поиск и отвечает только на основе найденного контекста со ссылками на источники.
+[![CI](https://github.com/kdromanovich/rag-knowledge-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/kdromanovich/rag-knowledge-assistant/actions/workflows/ci.yml)
+
+Production-oriented reference backend RAG на **Python, FastAPI, PostgreSQL, pgvector, Redis и OpenAI**. Сервис принимает документы, разбивает их на фрагменты, строит embeddings, выполняет векторный поиск и отвечает только на основе найденного контекста со ссылками на источники.
 
 ## Что демонстрирует проект
 
@@ -12,7 +14,7 @@
 - API-key авторизацию;
 - обработку PDF/TXT/Markdown;
 - Docker Compose;
-- тесты, Ruff и GitHub Actions.
+- unit + integration tests, Ruff и GitHub Actions.
 
 ## Архитектура
 
@@ -31,6 +33,10 @@ flowchart LR
     LLM --> A[Ответ + ссылки S1/S2]
 ```
 
+## Что реально проверяет CI
+
+GitHub Actions поднимает PostgreSQL с pgvector и Redis. Integration-тест проходит через FastAPI: проверяет API-key, загрузку документа, запись embeddings в pgvector, vector retrieval, сборку grounded-ответа и повторный ответ из Redis cache. Вызовы OpenAI в CI заменены детерминированными test doubles, поэтому платный API-ключ для проверки не нужен.
+
 ## Запуск
 
 ```bash
@@ -47,4 +53,6 @@ Swagger: `http://localhost:8000/docs`.
 - `POST /v1/documents`
 - `POST /v1/chat`
 
-Проект специально сделан как кодовый AI/backend-кейс, дополняющий n8n-портфолио.
+## Статус проекта
+
+Это portfolio/reference implementation, а не заявление о customer production deployment. Для internet-facing production потребуются миграции, object storage, tenant/ACL isolation, background ingestion, tracing, secrets management и API gateway/WAF.

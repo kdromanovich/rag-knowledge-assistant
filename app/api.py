@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from redis.exceptions import RedisError
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,7 +21,7 @@ async def health(session: AsyncSession = Depends(get_session)):
     redis_ok = True
     try:
         await redis_client.ping()
-    except Exception:
+    except RedisError:
         redis_ok = False
     return {"status": "ok", "database": "ok", "redis": "ok" if redis_ok else "degraded"}
 
@@ -31,9 +32,16 @@ async def ingest(file: UploadFile = File(...), session: AsyncSession = Depends(g
     if len(data) > settings.max_file_bytes:
         raise HTTPException(status_code=413, detail="File is too large")
     try:
-        text_content = extract_text(file.filename or "upload", file.content_type or "application/octet-stream", data)
+        text_content = extract_text(
+            file.filename or "upload",
+            file.content_type or "application/octet-stream",
+            data,
+        )
         document, count = await ingest_document(
-            session, file.filename or "upload", file.content_type or "application/octet-stream", text_content
+            session,
+            file.filename or "upload",
+            file.content_type or "application/octet-stream",
+            text_content,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
