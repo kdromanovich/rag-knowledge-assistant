@@ -1,12 +1,14 @@
 # RAG Knowledge Assistant
 
+[![CI](https://github.com/kdromanovich/rag-knowledge-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/kdromanovich/rag-knowledge-assistant/actions/workflows/ci.yml)
+
 [Русская версия](README_RU.md)
 
-A production-style Retrieval-Augmented Generation API built with **Python, FastAPI, PostgreSQL, pgvector, Redis and OpenAI**. It ingests documents, creates embeddings, retrieves semantically relevant chunks and generates grounded answers with explicit source references.
+A production-oriented **reference implementation** of a Retrieval-Augmented Generation API built with **Python, FastAPI, PostgreSQL, pgvector, Redis and OpenAI**. It ingests documents, creates embeddings, retrieves semantically relevant chunks and generates grounded answers with explicit source references.
 
 ## Why this project exists
 
-This repository demonstrates an AI backend beyond low-code workflow orchestration: async API development, relational persistence, vector search, document ingestion, caching, authentication, containerization, testing and CI.
+This repository demonstrates an AI backend beyond low-code workflow orchestration: async API development, relational persistence, vector search, document ingestion, caching, authentication, containerization, integration testing and CI.
 
 ## Architecture
 
@@ -39,6 +41,10 @@ flowchart LR
 - file-size validation and explicit format handling;
 - Docker Compose environment;
 - pytest, Ruff and GitHub Actions CI.
+
+## CI verification
+
+The CI pipeline starts real **PostgreSQL + pgvector** and **Redis** service containers. In addition to unit tests, it runs an API round-trip that checks authentication, document ingestion, vector persistence/retrieval, grounded response assembly and Redis cache reuse. OpenAI calls are replaced by deterministic test doubles so CI does not require paid credentials.
 
 ## Quick start
 
@@ -79,15 +85,15 @@ curl -X POST http://localhost:8000/v1/chat \
 
 ```text
 app/                  FastAPI application and RAG services
-tests/                unit tests
-.github/workflows/    CI
+tests/                unit + integration tests
+.github/workflows/    CI with PostgreSQL/pgvector + Redis
 Dockerfile             application image
 docker-compose.yml     API + PostgreSQL/pgvector + Redis
 ```
 
-## Production notes
+## Scope and production hardening
 
-This is a portfolio-grade reference implementation. For a public production deployment, add migrations (Alembic), object storage, tenant isolation, document ACL filtering, background ingestion for large files, request tracing and an API gateway/WAF.
+This is a portfolio-grade reference implementation, not a claim of a live customer production deployment. For an internet-facing production system, add Alembic migrations, object storage, tenant isolation, document ACL filtering, background ingestion for large files, request tracing, managed secrets and an API gateway/WAF.
 
 ## License
 
